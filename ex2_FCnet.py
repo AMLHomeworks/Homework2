@@ -9,6 +9,7 @@ from two_layernet import TwoLayerNet
 from gradient_check import eval_numerical_gradient
 from data_utils import get_CIFAR10_data
 from vis_utils import visualize_grid
+from statistics import mean
 #-------------------------- * End of setup *---------------------------------------
 
 #-------------------------------------------------------
@@ -277,7 +278,31 @@ best_net = None # store the best model into this
 
 # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-
+learning_rate = [0.1,0.01,0.001,0.001]
+batch_size = [200, 500, 800]
+regularization = [0.01, 0.1, 0.2]
+hidden_layer = [50,150,300]
+validation = 0
+i = 0
+total_size=144
+for hid_layer in hidden_layer:
+    for learn_rate in learning_rate:
+        for btc_size in batch_size:
+            for reglu in regularization:
+                i += 1
+                print( i, '/', total_size)
+                net = TwoLayerNet(input_size, hid_layer, num_classes)
+                stats = net.train(X_train, y_train, X_val, y_val,
+                            num_iters=1000, batch_size=btc_size,
+                            learning_rate=learn_rate, learning_rate_decay=0.95,
+                            reg=reglu)
+                y_train_pred = net.predict(X_train)
+                y_val_pred = net.predict(X_val)
+                validation_accuracy = np.mean(y_val == y_val_pred)
+                if validation < validation_accuracy:
+                    validation = validation_accuracy
+                    print("best_val",validation_accuracy)
+                    best_net = net
 
 pass
 
@@ -286,6 +311,7 @@ pass
 
 # visualize the weights of the best network
 plt.figure(6)
+print("Best Net....",validation)
 show_net_weights(best_net)
 
 

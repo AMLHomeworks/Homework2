@@ -94,8 +94,10 @@ class TwoLayerNet(object):
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
         scores = np.matmul(X,W1) + b1
+        z1= scores
         #ReLU
         scores[scores <0] = 0
+        a1 = scores
         scores = np.matmul(scores,W2) + b2
         z3 = scores
         #softmax
@@ -144,7 +146,17 @@ class TwoLayerNet(object):
 
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         
-        
+        dscores = err
+        dscores[range(N), y] -=1
+        dscores/=N
+        grads['W2'] = np.dot(a1.T, dscores)
+        grads['b2'] = np.sum(dscores, axis=0)
+        dhidden = np.dot(dscores, W2.T)
+        dhidden[z1 <= 0] = 0
+        grads['W1'] = np.dot(X.T, dhidden)
+        grads['b1'] = np.sum(dhidden, axis=0)
+        grads['W2'] += 2*lambda_1 * W2
+        grads['W1'] += 2*lambda_1 * W1
 
         pass
 
@@ -196,7 +208,9 @@ class TwoLayerNet(object):
             
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
             
-            
+            idx = np.random.choice(num_train, batch_size)
+            X_batch = X[idx]
+            y_batch = y[idx]
             
             pass
         
@@ -214,8 +228,10 @@ class TwoLayerNet(object):
             #########################################################################
             
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-            
-            
+            self.params['W1'] =  self.params['W1'] + (-learning_rate * grads['W1'])
+            self.params['b1'] =  self.params['b1'] + (-learning_rate * grads['b1'])
+            self.params['W2'] =  self.params['W2'] + (-learning_rate * grads['W2'])
+            self.params['b2'] =  self.params['b2'] + (-learning_rate * grads['b2'])
             
             pass
         
@@ -265,7 +281,14 @@ class TwoLayerNet(object):
         ###########################################################################
         
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
+        W1, b1 = self.params['W1'], self.params['b1']
+        W2, b2 = self.params['W2'], self.params['b2']
+        
+        z = np.matmul(X,W1) + b1
+        #ReLU activation function
+        z[z <0] = 0
+        scores = np.matmul(z,W2) + b2
+        y_pred = np.argmax(scores, axis=1)
 
 
         pass
