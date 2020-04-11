@@ -283,14 +283,10 @@ batch_size = [200, 500, 800]
 regularization = [0.01, 0.1, 0.2]
 hidden_layer = [50,150,300]
 validation = 0
-i = 0
-total_size=144
 for hid_layer in hidden_layer:
     for learn_rate in learning_rate:
         for btc_size in batch_size:
             for reglu in regularization:
-                i += 1
-                print( i, '/', total_size)
                 net = TwoLayerNet(input_size, hid_layer, num_classes)
                 stats = net.train(X_train, y_train, X_val, y_val,
                             num_iters=1000, batch_size=btc_size,
