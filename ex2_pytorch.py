@@ -112,7 +112,19 @@ class MultiLayerPerceptron(nn.Module):
         
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-        
+        # layers.append(nn.Linear(input_size, *hidden_layers, bias=True))
+        # layers.append(nn.ReLU())
+        # layers.append(nn.Linear(*hidden_layers, num_classes, bias=True))
+
+        layers.append(nn.Conv2d(3, 12, 5))
+        layers.append(nn.ReLU())
+        layers.append(nn.MaxPool2d(2, 2))
+        layers.append(nn.Conv2d(12, 16, 5))
+        layers.append(nn.ReLU())
+        layers.append(nn.MaxPool2d(2, 2))
+        layers.append(nn.Linear(16 * 5 * 5, input_size))
+        layers.append(nn.Linear(input_size, *hidden_layers))
+        layers.append(nn.Linear(*hidden_layers, num_classes))
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
@@ -130,12 +142,15 @@ class MultiLayerPerceptron(nn.Module):
         
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-
-
+        x = self.layers[:-3](x)
+        x = x.view(-1, 16 * 5 * 5)
+        out = self.layers[-3:](x)
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         
         return out
 
+
+# model = Net().to(device)
 model = MultiLayerPerceptron(input_size, hidden_size, num_classes).to(device)
 # Print model's state_dict
 '''
@@ -168,8 +183,14 @@ if train:
             # Use examples in https://pytorch.org/tutorials/beginner/pytorch_with_examples.html
             #################################################################################
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+            optimizer.zero_grad()
 
+            y_pred = model(images)
+            loss = criterion(y_pred, labels)
 
+            loss.backward()
+            optimizer.step()
+            # scheduler.step()
 
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
@@ -191,10 +212,10 @@ if train:
                 # 1. Pass the images to the model                  #
                 # 2. Get the most confident predicted class        #
                 ####################################################
-                # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
-            
-
+                # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****               
+                outputs = model(images)
+                outputs = torch.sigmoid(outputs) 
+                _, predicted = outputs.max(1)
                 # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
                 total += labels.size(0)
                 correct += (predicted == labels).sum().item()
@@ -244,7 +265,9 @@ else:
             ####################################################
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-            
+            outputs = model(images)
+            outputs = torch.sigmoid(outputs) 
+            _, predicted = outputs.max(1)
 
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
             total += labels.size(0)
@@ -253,4 +276,3 @@ else:
                 break
 
         print('Accuracy of the network on the {} test images: {} %'.format(total, 100 * correct / total))
-
