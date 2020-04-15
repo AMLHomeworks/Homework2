@@ -112,19 +112,10 @@ class MultiLayerPerceptron(nn.Module):
         
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-        # layers.append(nn.Linear(input_size, *hidden_layers, bias=True))
-        # layers.append(nn.ReLU())
-        # layers.append(nn.Linear(*hidden_layers, num_classes, bias=True))
-
-        layers.append(nn.Conv2d(3, 12, 5))
+        layers.append(nn.Linear(input_size, *hidden_layers, bias=True))
         layers.append(nn.ReLU())
-        layers.append(nn.MaxPool2d(2, 2))
-        layers.append(nn.Conv2d(12, 16, 5))
-        layers.append(nn.ReLU())
-        layers.append(nn.MaxPool2d(2, 2))
-        layers.append(nn.Linear(16 * 5 * 5, input_size))
-        layers.append(nn.Linear(input_size, *hidden_layers))
-        layers.append(nn.Linear(*hidden_layers, num_classes))
+        layers.append(nn.Linear(*hidden_layers, num_classes, bias=True))
+        # layers.append(nn.Sigmoid())
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
@@ -141,16 +132,13 @@ class MultiLayerPerceptron(nn.Module):
         #################################################################################
         
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+        x = x.view(batch_size, -1)
+        out = self.layers(x)
 
-        x = self.layers[:-3](x)
-        x = x.view(-1, 16 * 5 * 5)
-        out = self.layers[-3:](x)
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         
         return out
 
-
-# model = Net().to(device)
 model = MultiLayerPerceptron(input_size, hidden_size, num_classes).to(device)
 # Print model's state_dict
 '''
@@ -214,7 +202,7 @@ if train:
                 ####################################################
                 # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****               
                 outputs = model(images)
-                outputs = torch.sigmoid(outputs) 
+                outputs = torch.sigmoid(outputs)
                 _, predicted = outputs.max(1)
                 # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
                 total += labels.size(0)
@@ -266,7 +254,7 @@ else:
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
             outputs = model(images)
-            outputs = torch.sigmoid(outputs) 
+            outputs = torch.sigmoid(outputs)
             _, predicted = outputs.max(1)
 
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
